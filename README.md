@@ -6,7 +6,8 @@ Two Cents is a prediction market that lives entirely inside Bitcoin Cash smart c
 
 ## Live demo
 
-The app runs at https://godson-droid.github.io/twocents/
+The app runs at https://twocents-sigma.vercel.app/
+A mirror is kept at https://godson-droid.github.io/twocents/
 
 Three markets are live on mainnet right now, each with real money already in the pool:
 
