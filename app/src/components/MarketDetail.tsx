@@ -202,6 +202,14 @@ export function MarketDetail({
                 : `Live pool data is unavailable right now (${pool.error ?? 'network error'}). Odds are shown at 50/50.`}
             </div>
           )}
+          {pool.found && !pool.live && (
+            <div className="notice" style={{ marginTop: 16 }}>
+              This browser could not open the live connection to the Bitcoin Cash
+              network, so this page shows the pool state last verified on chain
+              {market.snapshot ? ` (${market.snapshot.asOf})` : ''}. The figures are
+              real; betting and claims need the live connection.
+            </div>
+          )}
           <p className="muted" style={{ marginBottom: 0 }}>
             Odds come straight from the covenant's on-chain state: every sat staked on a
             side releases one share from that side's vault, and the implied price is

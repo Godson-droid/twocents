@@ -18,6 +18,14 @@
         "voidDeadline": 1796688000,
         "yesCategory": "fafae1018daa5d8527c58f9c544509eee5f4d6f37a75c6e845143d6ba7f841a4",
         "noCategory": "c62c789853371855f1c2af7dc69f3a25ff6aa06ba06e7598d90cd218411c152d"
+      },
+      "snapshot": {
+        "poolSats": 42000,
+        "totalYes": 20000,
+        "totalNo": 12000,
+        "state": 0,
+        "winner": null,
+        "asOf": "21 Nov 2026"
       }
     },
     {
@@ -38,6 +46,14 @@
         "voidDeadline": 1796688000,
         "yesCategory": "10d8a79654f73352ede1bf8c97e4ce8df196b674d28c450b145a3956cb1fd973",
         "noCategory": "29d295337586c89bf4119dc6dd8002631f1374bc93ada1b660ddb0874a80413c"
+      },
+      "snapshot": {
+        "poolSats": 44000,
+        "totalYes": 14000,
+        "totalNo": 20000,
+        "state": 0,
+        "winner": null,
+        "asOf": "21 Nov 2026"
       }
     },
     {
@@ -58,6 +74,14 @@
         "voidDeadline": 1797120000,
         "yesCategory": "7f42467051489733027a332044beb9818d3324098cbe9428aa4f4655fd49de98",
         "noCategory": "9af2c146b4b12677f7ca9353eb2eab5a1cde33644772c9e4deeddd15b4f867c2"
+      },
+      "snapshot": {
+        "poolSats": 34000,
+        "totalYes": 15000,
+        "totalNo": 9000,
+        "state": 0,
+        "winner": null,
+        "asOf": "21 Nov 2026"
       }
     }
   ]

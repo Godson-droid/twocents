@@ -84,6 +84,12 @@ export function MarketCard({
           Pool contract is not live on {market.network} yet — odds shown at 50/50.
         </div>
       )}
+      {pool.found && !pool.live && loadedOnce && (
+        <div className="faint" style={{ fontSize: 12.5 }}>
+          Live connection unavailable in this browser. Showing the on chain state
+          last verified {market.snapshot?.asOf ?? ''}.
+        </div>
+      )}
     </article>
   );
 }

@@ -54,7 +54,7 @@ async function randomWallet(network: NetworkName): Promise<Wallet> {
 }
 
 export function WalletProvider({ children }: { children: ReactNode }) {
-  const [network, setNetworkState] = useState<NetworkName>('chipnet');
+  const [network, setNetworkState] = useState<NetworkName>('mainnet');
   const [wallet, setWallet] = useState<Wallet | null>(null);
   const [walletError, setWalletError] = useState<string | null>(null);
   const [balanceSats, setBalanceSats] = useState<bigint | null>(null);
@@ -82,9 +82,9 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       try {
         const stored = localStorage.getItem(WIF_KEY);
         if (stored) {
-          await loadFromWif(stored, 'chipnet');
+          await loadFromWif(stored, 'mainnet');
         } else {
-          const instance = await randomWallet('chipnet');
+          const instance = await randomWallet('mainnet');
           localStorage.setItem(WIF_KEY, instance.privateKeyWif);
           setWallet(instance);
         }

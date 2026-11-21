@@ -11,6 +11,17 @@ export interface MarketParams {
   noCategory: string; // bytes32 hex
 }
 
+/** The pool state as last verified directly on chain by the project. */
+export interface MarketSnapshot {
+  poolSats: number;
+  totalYes: number;
+  totalNo: number;
+  state: 0 | 1 | 2;
+  winner: 0 | 1 | null;
+  /** Human readable date the snapshot was verified, e.g. "21 Nov 2026". */
+  asOf: string;
+}
+
 export interface MarketConfig {
   id: string;
   question: string;
@@ -22,6 +33,8 @@ export interface MarketConfig {
   /** ShareVault contract address per outcome (0 = Yes key, 1 = No key). */
   vaults: { yes: string; no: string };
   params: MarketParams;
+  /** Shown when the live chain connection cannot be made from this browser. */
+  snapshot?: MarketSnapshot;
 }
 
 export const MARKETS: MarketConfig[] = (marketsJson.markets as MarketConfig[]).slice();
@@ -34,6 +47,9 @@ export type MarketPhase = 'open' | 'closed' | 'resolved' | 'voidable';
 
 export interface PoolState {
   found: boolean;
+  /** True when this state was read live from the chain just now. False when
+   * it is the market's last verified snapshot (no poolUtxo, no betting). */
+  live: boolean;
   /** The live pool UTXO at the contract address, when found. */
   poolUtxo?: SpendableUtxo;
   poolSats: bigint;
@@ -48,6 +64,7 @@ export interface PoolState {
 
 export const EMPTY_POOL: PoolState = {
   found: false,
+  live: false,
   poolSats: 0n,
   totalYes: 0n,
   totalNo: 0n,

@@ -177,6 +177,12 @@ export function BetSlip({
           The market opens as soon as its covenant is funded.
         </div>
       )}
+      {pool.found && !pool.live && (
+        <div className="notice" style={{ marginBottom: 12 }}>
+          Betting needs the live connection to the Bitcoin Cash network, which this
+          browser could not open. The odds shown are the last verified on chain state.
+        </div>
+      )}
       {overSupply && (
         <div className="notice" style={{ marginBottom: 12 }}>
           Only {supply !== null ? fmtShares(supply) : '0'} shares remain in this side’s
@@ -191,7 +197,7 @@ export function BetSlip({
 
       <button
         className={`btn btn-lg btn-block ${outcome === 0 ? 'btn-primary' : 'btn-no'}`}
-        disabled={busy || !amount || !signerCtx || !pool.found || overSupply}
+        disabled={busy || !amount || !signerCtx || !pool.live || overSupply}
         onClick={() => void place()}
       >
         {busy ? (

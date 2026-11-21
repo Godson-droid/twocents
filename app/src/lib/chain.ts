@@ -119,6 +119,27 @@ export async function fetchContractUtxos(market: MarketConfig): Promise<Spendabl
  * Read the live pool state: find the UTXO carrying the mutable state NFT
  * (category = market.stateCategory) and decode its 18-byte commitment.
  */
+/**
+ * When the live connection cannot be made from this browser (some networks
+ * block the Electrum websocket), fall back to the pool state the project
+ * last verified directly on chain, clearly flagged as not live. The figures
+ * are real; only betting and claims need the live connection.
+ */
+function snapshotPool(market: MarketConfig, error?: string): PoolState | null {
+  const snap = market.snapshot;
+  if (!snap) return null;
+  return {
+    found: true,
+    live: false,
+    poolSats: BigInt(snap.poolSats),
+    totalYes: BigInt(snap.totalYes),
+    totalNo: BigInt(snap.totalNo),
+    state: snap.state,
+    winner: snap.winner,
+    error,
+  };
+}
+
 export async function fetchPoolState(market: MarketConfig): Promise<PoolState> {
   try {
     const utxos = await fetchContractUtxos(market);
@@ -131,11 +152,12 @@ export async function fetchPoolState(market: MarketConfig): Promise<PoolState> {
       .sort((a, b) => (a.satoshis > b.satoshis ? -1 : 1))[0];
 
     if (!poolUtxo || !poolUtxo.token?.nft) {
-      return { ...EMPTY_POOL, error: 'Pool not live yet' };
+      return snapshotPool(market) ?? { ...EMPTY_POOL, error: 'Pool not live yet' };
     }
     const parsed = parseCommitment(poolUtxo.token.nft.commitment);
     return {
       found: true,
+      live: true,
       poolUtxo,
       poolSats: poolUtxo.satoshis,
       totalYes: parsed.totalYes,
@@ -144,10 +166,8 @@ export async function fetchPoolState(market: MarketConfig): Promise<PoolState> {
       winner: parsed.winner,
     };
   } catch (err) {
-    return {
-      ...EMPTY_POOL,
-      error: err instanceof Error ? err.message : 'Could not reach the network',
-    };
+    const message = err instanceof Error ? err.message : 'Could not reach the network';
+    return snapshotPool(market, message) ?? { ...EMPTY_POOL, error: message };
   }
 }
 
