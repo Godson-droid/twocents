@@ -2,7 +2,10 @@ import { shortValue } from '../lib/format';
 import { useWallet } from '../lib/wallet';
 
 export function Header({ onHome, onWallet }: { onHome: () => void; onWallet: () => void }) {
-  const { network, activeAddress, signer } = useWallet();
+  const { network, activeAddress, activeTokenAddress, signer } = useWallet();
+  // Show the token aware address: it is the deposit address the wallet modal
+  // presents, so the header and the modal always agree.
+  const displayAddress = activeTokenAddress ?? activeAddress;
   return (
     <header className="topbar">
       <div className="topbar-in">
@@ -20,9 +23,9 @@ export function Header({ onHome, onWallet }: { onHome: () => void; onWallet: () 
           {network === 'mainnet' ? 'BCH Mainnet' : 'BCH Chipnet'}
         </span>
         <button className="btn btn-ghost" onClick={onWallet}>
-          {activeAddress ? (
+          {displayAddress ? (
             <>
-              <span className="mono">{shortValue(activeAddress, 8, 6)}</span>
+              <span className="mono">{shortValue(displayAddress, 8, 6)}</span>
               <span className="faint" style={{ fontSize: 12 }}>
                 {signer === 'wizard' ? 'WizardConnect' : 'Demo wallet'}
               </span>
