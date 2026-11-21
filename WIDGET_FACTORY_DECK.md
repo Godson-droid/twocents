@@ -9,7 +9,7 @@ Two Cents
 Put your money where your mouth is.
 A prediction market that lives entirely inside Bitcoin Cash smart contracts.
 Built by Godson, solo. Telegram @smigle22
-Live demo: https://godson-droid.github.io/twocents/
+Live demo: https://twocents-sigma.vercel.app/
 Code: https://github.com/Godson-droid/twocents
 
 ## Slide 2, The Story
@@ -42,6 +42,6 @@ Vision: a market for anything, settled by code, open to anyone with a phone and 
 
 ## Slide 6, Links
 
-Live demo: https://godson-droid.github.io/twocents/
+Live demo: https://twocents-sigma.vercel.app/
 Repo and full mainnet proof: https://github.com/Godson-droid/twocents
 CashTokens donations for EMBER2026: bitcoincash:zqjelks8pq4jx8z6jtxv2awn9crkrphhzq5dkdd9yu
