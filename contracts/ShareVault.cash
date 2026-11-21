@@ -1,0 +1,54 @@
+pragma cashscript ^0.14.0;
+
+// Two Cents: vault holding one outcome's pre minted shares for one market.
+//
+// The vault can only be spent alongside its market's pool, and only when
+// the pool's state shows this vault's side growing by exactly the shares
+// the vault releases and the pool's value growing by the same amount.
+// The pool input is recognised by the sha256 of its locking bytecode:
+// token category introspection is not reliable for NFT carrying inputs,
+// while the bytecode hash is exact. Leftover shares stay locked forever
+// once betting closes, which is what makes the fixed supply safe.
+contract ShareVault(
+    bytes32 poolScriptHash,
+    bytes32 shareCategory,
+    int side
+) {
+    function release() {
+        // Fixed shape shared with MarketPool.bet: input 0 is the pool,
+        // input 1 is this vault, output 0 is the pool continuation,
+        // output 1 is this vault's continuation.
+        require(sha256(tx.inputs[0].lockingBytecode) == poolScriptHash);
+        require(tx.inputs[1].tokenCategory == shareCategory);
+        require(tx.outputs[1].lockingBytecode == tx.inputs[1].lockingBytecode);
+        require(tx.outputs[1].tokenCategory == shareCategory);
+
+        int released = tx.inputs[1].tokenAmount - tx.outputs[1].tokenAmount;
+        require(released > 0);
+
+        // The pool must continue in output 0 at the same address, worth
+        // exactly the released amount more than it was.
+        require(tx.outputs[0].lockingBytecode == tx.inputs[0].lockingBytecode);
+        require(tx.outputs[0].value == tx.inputs[0].value + released);
+
+        bytes oldCommitment = tx.inputs[0].nftCommitment;
+        (bytes oldYesBytes, bytes oldRest1) = oldCommitment.split(8);
+        (bytes oldNoBytes, bytes oldRest2) = oldRest1.split(8);
+        (bytes oldStateByte, bytes oldWinnerByte) = oldRest2.split(1);
+        require(int(oldStateByte) == 0);
+
+        bytes newCommitment = tx.outputs[0].nftCommitment;
+        (bytes newYesBytes, bytes newRest1) = newCommitment.split(8);
+        (bytes newNoBytes, bytes newRest2) = newRest1.split(8);
+        (bytes newStateByte, bytes newWinnerByte) = newRest2.split(1);
+        require(int(newStateByte) == 0);
+
+        if (side == 0) {
+            require(int(newYesBytes) == int(oldYesBytes) + released);
+            require(int(newNoBytes) == int(oldNoBytes));
+        } else {
+            require(int(newNoBytes) == int(oldNoBytes) + released);
+            require(int(newYesBytes) == int(oldYesBytes));
+        }
+    }
+}

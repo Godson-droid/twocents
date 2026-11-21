@@ -1,0 +1,94 @@
+{
+  "contractName": "ShareVault",
+  "constructorInputs": [
+    {
+      "name": "poolScriptHash",
+      "type": "bytes32"
+    },
+    {
+      "name": "shareCategory",
+      "type": "bytes32"
+    },
+    {
+      "name": "side",
+      "type": "int"
+    }
+  ],
+  "abi": [
+    {
+      "name": "release",
+      "inputs": []
+    }
+  ],
+  "bytecode": "OP_0 OP_UTXOBYTECODE OP_SHA256 OP_EQUALVERIFY OP_1 OP_UTXOTOKENCATEGORY OP_OVER OP_EQUALVERIFY OP_1 OP_OUTPUTBYTECODE OP_1 OP_UTXOBYTECODE OP_EQUALVERIFY OP_1 OP_OUTPUTTOKENCATEGORY OP_EQUALVERIFY OP_1 OP_UTXOTOKENAMOUNT OP_1 OP_OUTPUTTOKENAMOUNT OP_SUB OP_DUP OP_0 OP_GREATERTHAN OP_VERIFY OP_0 OP_OUTPUTBYTECODE OP_0 OP_UTXOBYTECODE OP_EQUALVERIFY OP_0 OP_OUTPUTVALUE OP_0 OP_UTXOVALUE OP_2 OP_PICK OP_ADD OP_NUMEQUALVERIFY OP_0 OP_UTXOTOKENCOMMITMENT OP_8 OP_SPLIT OP_8 OP_SPLIT OP_1 OP_SPLIT OP_DROP OP_BIN2NUM OP_0 OP_NUMEQUALVERIFY OP_0 OP_OUTPUTTOKENCOMMITMENT OP_8 OP_SPLIT OP_8 OP_SPLIT OP_1 OP_SPLIT OP_DROP OP_BIN2NUM OP_0 OP_NUMEQUALVERIFY OP_5 OP_ROLL OP_0 OP_NUMEQUAL OP_IF OP_OVER OP_BIN2NUM OP_4 OP_PICK OP_BIN2NUM OP_6 OP_PICK OP_ADD OP_NUMEQUALVERIFY OP_DUP OP_BIN2NUM OP_3 OP_PICK OP_BIN2NUM OP_NUMEQUALVERIFY OP_ELSE OP_DUP OP_BIN2NUM OP_3 OP_PICK OP_BIN2NUM OP_6 OP_PICK OP_ADD OP_NUMEQUALVERIFY OP_OVER OP_BIN2NUM OP_4 OP_PICK OP_BIN2NUM OP_NUMEQUALVERIFY OP_ENDIF OP_2DROP OP_2DROP OP_DROP OP_1",
+  "source": "pragma cashscript ^0.14.0;\n\n// Two Cents: vault holding one outcome's pre minted shares for one market.\n//\n// The vault can only be spent alongside its market's pool, and only when\n// the pool's state shows this vault's side growing by exactly the shares\n// the vault releases and the pool's value growing by the same amount.\n// The pool input is recognised by the sha256 of its locking bytecode:\n// token category introspection is not reliable for NFT carrying inputs,\n// while the bytecode hash is exact. Leftover shares stay locked forever\n// once betting closes, which is what makes the fixed supply safe.\ncontract ShareVault(\n    bytes32 poolScriptHash,\n    bytes32 shareCategory,\n    int side\n) {\n    function release() {\n        // Fixed shape shared with MarketPool.bet: input 0 is the pool,\n        // input 1 is this vault, output 0 is the pool continuation,\n        // output 1 is this vault's continuation.\n        require(sha256(tx.inputs[0].lockingBytecode) == poolScriptHash);\n        require(tx.inputs[1].tokenCategory == shareCategory);\n        require(tx.outputs[1].lockingBytecode == tx.inputs[1].lockingBytecode);\n        require(tx.outputs[1].tokenCategory == shareCategory);\n\n        int released = tx.inputs[1].tokenAmount - tx.outputs[1].tokenAmount;\n        require(released > 0);\n\n        // The pool must continue in output 0 at the same address, worth\n        // exactly the released amount more than it was.\n        require(tx.outputs[0].lockingBytecode == tx.inputs[0].lockingBytecode);\n        require(tx.outputs[0].value == tx.inputs[0].value + released);\n\n        bytes oldCommitment = tx.inputs[0].nftCommitment;\n        (bytes oldYesBytes, bytes oldRest1) = oldCommitment.split(8);\n        (bytes oldNoBytes, bytes oldRest2) = oldRest1.split(8);\n        (bytes oldStateByte, bytes oldWinnerByte) = oldRest2.split(1);\n        require(int(oldStateByte) == 0);\n\n        bytes newCommitment = tx.outputs[0].nftCommitment;\n        (bytes newYesBytes, bytes newRest1) = newCommitment.split(8);\n        (bytes newNoBytes, bytes newRest2) = newRest1.split(8);\n        (bytes newStateByte, bytes newWinnerByte) = newRest2.split(1);\n        require(int(newStateByte) == 0);\n\n        if (side == 0) {\n            require(int(newYesBytes) == int(oldYesBytes) + released);\n            require(int(newNoBytes) == int(oldNoBytes));\n        } else {\n            require(int(newNoBytes) == int(oldNoBytes) + released);\n            require(int(newYesBytes) == int(oldYesBytes));\n        }\n    }\n}\n",
+  "fingerprint": "e964a99811caa698386ea6ecd715eaf2253d0a3e9c4a8d3fca805187135da840",
+  "debug": {
+    "bytecode": "00c7a88851ce788851cd51c78851d18851d051d3947600a06900cd00c78800cc00c65279939d00cf587f587f517f7581009d00d2587f587f517f7581009d557a009c6378815479815679939d76815379819d6776815379815679939d78815479819d686d6d7551",
+    "sourceMap": "21:33:21:34;:23::51:1;:16::52;:8::72;22:26:22:27:0;:16::42:1;:46::59:0;:8::61:1;23:27:23:28:0;:16::45:1;:59::60:0;:49::77:1;:8::79;24:27:24:28:0;:16::43:1;:8::62;26:33:26:34:0;:23::47:1;:61::62:0;:50::75:1;:23;27:16:27:24:0;:27::28;:16:::1;:8::30;31:27:31:28:0;:16::45:1;:59::60:0;:49::77:1;:8::79;32:27:32:28:0;:16::35:1;:49::50:0;:39::57:1;:60::68:0;;:39:::1;:8::70;34:40:34:41:0;:30::56:1;35:66:35:67:0;:46::68:1;36:60:36:61:0;:45::62:1;37:67:37:68:0;:52::69:1;:8::70;38:16:38:33;:37::38:0;:8::40:1;40:41:40:42:0;:30::57:1;41:66:41:67:0;:46::68:1;42:60:42:61:0;:45::62:1;43:67:43:68:0;:52::69:1;:8::70;44:16:44:33;:37::38:0;:8::40:1;46:12:46:16:0;;:20::21;:12:::1;:23:49:9:0;47:24:47:35;:20::36:1;:44::55:0;;:40::56:1;:59::67:0;;:40:::1;:12::69;48:24:48:34:0;:20::35:1;:43::53:0;;:39::54:1;:12::56;49:15:52:9:0;50:24:50:34;:20::35:1;:43::53:0;;:39::54:1;:57::65:0;;:39:::1;:12::67;51:24:51:35:0;:20::36:1;:44::55:0;;:40::56:1;:12::58;49:15:52:9;17:23:53:5;;;",
+    "logs": [],
+    "requires": [
+      {
+        "ip": 6,
+        "line": 21
+      },
+      {
+        "ip": 10,
+        "line": 22
+      },
+      {
+        "ip": 15,
+        "line": 23
+      },
+      {
+        "ip": 18,
+        "line": 24
+      },
+      {
+        "ip": 27,
+        "line": 27
+      },
+      {
+        "ip": 32,
+        "line": 31
+      },
+      {
+        "ip": 40,
+        "line": 32
+      },
+      {
+        "ip": 52,
+        "line": 38
+      },
+      {
+        "ip": 64,
+        "line": 44
+      },
+      {
+        "ip": 78,
+        "line": 47
+      },
+      {
+        "ip": 84,
+        "line": 48
+      },
+      {
+        "ip": 94,
+        "line": 50
+      },
+      {
+        "ip": 100,
+        "line": 51
+      }
+    ]
+  },
+  "compiler": {
+    "name": "cashc",
+    "version": "0.14.0",
+    "options": {
+      "enforceFunctionParameterTypes": true,
+      "enforceLocktimeGuard": true
+    }
+  },
+  "updatedAt": "2026-11-21T06:12:14.400Z"
+}

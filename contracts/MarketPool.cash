@@ -1,0 +1,203 @@
+pragma cashscript ^0.14.0;
+
+// Two Cents: parimutuel prediction market pool.
+//
+// The pool UTXO holds the market's BCH and a mutable state NFT whose
+// commitment (18 bytes) tracks the market:
+//   bytes 0..8   totalYes (padded int, sats staked on Yes)
+//   bytes 8..16  totalNo  (padded int, sats staked on No)
+//   byte  16     state: 0 = open, 1 = resolved, 2 = closed
+//   byte  17     winner: 0 = Yes, 1 = No (meaningful once resolved)
+//
+// CashScript time locks can only prove "not before", so bets are gated
+// by the open state rather than a clock check: anyone can call close()
+// once the betting deadline passes, which freezes late bets before the
+// resolver settles. The deadline is set before the event it tracks.
+//
+// Shares are fungible CashTokens, one category per outcome, pre minted
+// into ShareVault UTXOs. One share is issued against exactly one satoshi
+// staked, so a winning share redeems pool * shares / totalWinning, and
+// an unresolved market refunds every share 1:1 after the void deadline.
+contract MarketPool(
+    bytes20 resolverPkh,
+    int bettingDeadline,
+    int voidDeadline,
+    bytes32 yesCategory,
+    bytes32 noCategory
+) {
+    // Fixed transaction shape: input 0 is the pool, output 0 is its
+    // continuation. Every path guards the continuation's address, value
+    // and state so the pool can never be quietly rerouted.
+    function bet(int outcome) {
+        // Input 1 is the ShareVault for the chosen outcome, input 2 is
+        // the bettor's funding input. Output 1 is the vault continuation,
+        // output 2 pays the shares to the funding input's owner.
+        bytes commitment = tx.inputs[0].nftCommitment;
+        (bytes yesBytes, bytes rest1) = commitment.split(8);
+        (bytes noBytes, bytes rest2) = rest1.split(8);
+        (bytes stateByte, bytes winnerByte) = rest2.split(1);
+        require(int(stateByte) == 0);
+        int totalYes = int(yesBytes);
+        int totalNo = int(noBytes);
+
+        bytes32 shareCategory = yesCategory;
+        if (outcome == 1) {
+            shareCategory = noCategory;
+        }
+
+        require(tx.inputs[1].tokenCategory == shareCategory);
+        require(tx.outputs[1].tokenCategory == shareCategory);
+        int released = tx.inputs[1].tokenAmount - tx.outputs[1].tokenAmount;
+        require(released > 0);
+
+        // The pool grows by exactly the shares released: 1 sat = 1 share.
+        require(tx.outputs[0].value == tx.inputs[0].value + released);
+        require(tx.outputs[0].lockingBytecode == tx.inputs[0].lockingBytecode);
+        require(tx.outputs[0].tokenCategory == tx.inputs[0].tokenCategory);
+
+        // The bettor receives exactly the released shares.
+        require(tx.outputs[2].tokenCategory == shareCategory);
+        require(tx.outputs[2].tokenAmount == released);
+        require(tx.outputs[2].lockingBytecode == tx.inputs[2].lockingBytecode);
+
+        int newYes = totalYes;
+        int newNo = totalNo;
+        if (outcome == 0) {
+            newYes = totalYes + released;
+        } else {
+            newNo = totalNo + released;
+        }
+        bytes newCommitment = toPaddedBytes(newYes, 8) + toPaddedBytes(newNo, 8) + stateByte + winnerByte;
+        require(tx.outputs[0].nftCommitment == newCommitment);
+    }
+
+    function close() {
+        // Anyone may freeze betting once the deadline has passed.
+        require(tx.time >= bettingDeadline);
+
+        bytes commitment = tx.inputs[0].nftCommitment;
+        (bytes yesBytes, bytes rest1) = commitment.split(8);
+        (bytes noBytes, bytes rest2) = rest1.split(8);
+        (bytes stateByte, bytes winnerByte) = rest2.split(1);
+        require(int(stateByte) == 0);
+
+        require(tx.outputs[0].value == tx.inputs[0].value);
+        require(tx.outputs[0].lockingBytecode == tx.inputs[0].lockingBytecode);
+        require(tx.outputs[0].tokenCategory == tx.inputs[0].tokenCategory);
+        bytes newCommitment = yesBytes + noBytes + toPaddedBytes(2, 1) + winnerByte;
+        require(tx.outputs[0].nftCommitment == newCommitment);
+    }
+
+    function resolve(pubkey resolverPk, sig resolverSig, int winner) {
+        require(hash160(resolverPk) == resolverPkh);
+        require(checkSig(resolverSig, resolverPk));
+        require(tx.time >= bettingDeadline);
+        require(winner == 0 || winner == 1);
+
+        bytes commitment = tx.inputs[0].nftCommitment;
+        (bytes yesBytes, bytes rest1) = commitment.split(8);
+        (bytes noBytes, bytes rest2) = rest1.split(8);
+        (bytes stateByte, bytes winnerByte) = rest2.split(1);
+        require(int(stateByte) == 0 || int(stateByte) == 2);
+
+        // Value and totals carry over untouched; only state and winner move.
+        require(tx.outputs[0].value == tx.inputs[0].value);
+        require(tx.outputs[0].lockingBytecode == tx.inputs[0].lockingBytecode);
+        require(tx.outputs[0].tokenCategory == tx.inputs[0].tokenCategory);
+        bytes newCommitment = yesBytes + noBytes + toPaddedBytes(1, 1) + toPaddedBytes(winner, 1);
+        require(tx.outputs[0].nftCommitment == newCommitment);
+    }
+
+    function claim() {
+        // Input 1 is the claimant's winning shares; they are burned by
+        // having no token output. The payout lands on the share owner's
+        // address: output 1 while the pool continues, output 0 when this
+        // claim drains the pool and the state NFT is burned with it.
+        bytes commitment = tx.inputs[0].nftCommitment;
+        (bytes yesBytes, bytes rest1) = commitment.split(8);
+        (bytes noBytes, bytes rest2) = rest1.split(8);
+        (bytes stateByte, bytes winnerByte) = rest2.split(1);
+        require(int(stateByte) == 1);
+        int winner = int(winnerByte);
+        int totalYes = int(yesBytes);
+        int totalNo = int(noBytes);
+
+        bytes32 winCategory = yesCategory;
+        int totalWinner = totalYes;
+        if (winner == 1) {
+            winCategory = noCategory;
+            totalWinner = totalNo;
+        }
+        require(tx.inputs[1].tokenCategory == winCategory);
+        int shares = tx.inputs[1].tokenAmount;
+        require(shares > 0);
+        require(shares <= totalWinner);
+
+        int poolValue = tx.inputs[0].value;
+        int payout = poolValue * shares / totalWinner;
+
+        if (shares == totalWinner) {
+            require(tx.outputs.length == 1);
+            require(tx.outputs[0].value == poolValue);
+            require(tx.outputs[0].lockingBytecode == tx.inputs[1].lockingBytecode);
+        } else {
+            int newYes = totalYes;
+            int newNo = totalNo;
+            if (winner == 0) {
+                newYes = totalWinner - shares;
+            } else {
+                newNo = totalWinner - shares;
+            }
+            require(tx.outputs[0].value == poolValue - payout);
+            require(tx.outputs[0].lockingBytecode == tx.inputs[0].lockingBytecode);
+            require(tx.outputs[0].tokenCategory == tx.inputs[0].tokenCategory);
+            bytes newCommitment = toPaddedBytes(newYes, 8) + toPaddedBytes(newNo, 8) + stateByte + winnerByte;
+            require(tx.outputs[0].nftCommitment == newCommitment);
+            require(tx.outputs[1].value == payout);
+            require(tx.outputs[1].lockingBytecode == tx.inputs[1].lockingBytecode);
+        }
+    }
+
+    function voidClaim() {
+        // Only for a market the resolver never settled: after the void
+        // deadline every share refunds at exactly 1:1 from the pool.
+        require(tx.time >= voidDeadline);
+
+        bytes commitment = tx.inputs[0].nftCommitment;
+        (bytes yesBytes, bytes rest1) = commitment.split(8);
+        (bytes noBytes, bytes rest2) = rest1.split(8);
+        (bytes stateByte, bytes winnerByte) = rest2.split(1);
+        require(int(stateByte) == 0 || int(stateByte) == 2);
+        int totalYes = int(yesBytes);
+        int totalNo = int(noBytes);
+
+        bytes cat = tx.inputs[1].tokenCategory;
+        require(cat == yesCategory || cat == noCategory);
+        int shares = tx.inputs[1].tokenAmount;
+        require(shares > 0);
+        int newYes = totalYes;
+        int newNo = totalNo;
+        if (cat == yesCategory) {
+            newYes = totalYes - shares;
+        } else {
+            newNo = totalNo - shares;
+        }
+        require(newYes >= 0);
+        require(newNo >= 0);
+
+        int poolValue = tx.inputs[0].value;
+        if (newYes == 0 && newNo == 0) {
+            require(tx.outputs.length == 1);
+            require(tx.outputs[0].value == poolValue);
+            require(tx.outputs[0].lockingBytecode == tx.inputs[1].lockingBytecode);
+        } else {
+            require(tx.outputs[0].value == poolValue - shares);
+            require(tx.outputs[0].lockingBytecode == tx.inputs[0].lockingBytecode);
+            require(tx.outputs[0].tokenCategory == tx.inputs[0].tokenCategory);
+            bytes newCommitment = toPaddedBytes(newYes, 8) + toPaddedBytes(newNo, 8) + stateByte + winnerByte;
+            require(tx.outputs[0].nftCommitment == newCommitment);
+            require(tx.outputs[1].value == shares);
+            require(tx.outputs[1].lockingBytecode == tx.inputs[1].lockingBytecode);
+        }
+    }
+}

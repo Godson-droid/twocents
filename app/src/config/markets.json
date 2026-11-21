@@ -1,0 +1,64 @@
+{
+  "markets": [
+    {
+      "id": "bch-200-dec-2026",
+      "question": "Will Bitcoin Cash trade above $200 on 1 December 2026?",
+      "detail": "Resolves Yes if BCH trades at or above 200 US dollars on a major exchange at any point on 1 December 2026 UTC. Resolves No otherwise.",
+      "category": "Crypto",
+      "network": "mainnet",
+      "address": "bitcoincash:rwmvk6v5h79eg4czyxt9kx6gtpyrq8uwknwng6fygnch88eg76ezjyhac7fcd",
+      "stateCategory": "e537a746105d32a89ea55c885729314a363c2fb2e7a2ad1d72db6f5430d6bb95",
+      "vaults": {
+        "yes": "bitcoincash:rwlj7tf7ljmdavazjz0t2yc5sd2jcac3tah3mq6gher3nqx7kzx9yl8qjfw3t",
+        "no": "bitcoincash:rws6cwztt4nr6s4q5evq5k6tp06uqurjyl9c235e2c85hlml46pjyhszvpy6h"
+      },
+      "params": {
+        "resolverPkh": "259fda07082b231c5a92ccc575d32e076186f710",
+        "bettingDeadline": 1796083140,
+        "voidDeadline": 1796688000,
+        "yesCategory": "fafae1018daa5d8527c58f9c544509eee5f4d6f37a75c6e845143d6ba7f841a4",
+        "noCategory": "c62c789853371855f1c2af7dc69f3a25ff6aa06ba06e7598d90cd218411c152d"
+      }
+    },
+    {
+      "id": "eth-3500-dec-2026",
+      "question": "Will Ethereum trade above $3,500 on 1 December 2026?",
+      "detail": "Resolves Yes if ETH trades at or above 3,500 US dollars on a major exchange at any point on 1 December 2026 UTC. Resolves No otherwise.",
+      "category": "Crypto",
+      "network": "mainnet",
+      "address": "bitcoincash:rwm8gftlayae2gxjwugw45rg60us2dvrzgmzynywj85mgwvwpakyv5fmpme3d",
+      "stateCategory": "f335cfe61200b2e1eae32877bf26154ed95d6143a4eb0a68797a61fd2b77af71",
+      "vaults": {
+        "yes": "bitcoincash:r0uzz7swvlwmghu4rqz6rd4u0cc2pzxzp8vmxj7lyn80wv8dudgxsuan5r4yv",
+        "no": "bitcoincash:rvzsp24r2ndykml4s8lllxuv3p26rey74jvvme4udtgw2wauc2j95jkyew3dg"
+      },
+      "params": {
+        "resolverPkh": "259fda07082b231c5a92ccc575d32e076186f710",
+        "bettingDeadline": 1796083140,
+        "voidDeadline": 1796688000,
+        "yesCategory": "10d8a79654f73352ede1bf8c97e4ce8df196b674d28c450b145a3956cb1fd973",
+        "noCategory": "29d295337586c89bf4119dc6dd8002631f1374bc93ada1b660ddb0874a80413c"
+      }
+    },
+    {
+      "id": "twocents-top-3-bchblaze",
+      "question": "Will Two Cents finish in the top 3 of the BCH BLAZE Mainnet Track?",
+      "detail": "Resolves Yes if Two Cents is announced as a first, second or third place winner of the BCH BLAZE 2026 Mainnet Track. Resolves No otherwise.",
+      "category": "Hackathon",
+      "network": "mainnet",
+      "address": "bitcoincash:rdtpqaknvpgsde9m03skz548grt7effgsmzqe9smg4peq7xtuhf7v0wz43u70",
+      "stateCategory": "a434f06659d6c753e652cee7505dbf9f3d4ac021c1314b2077385470f3352547",
+      "vaults": {
+        "yes": "bitcoincash:rdkftqe68vrjkqd8gswundjj2amdpc3kw9ue7pl6p3jel7ugg3dn6ge4g04rl",
+        "no": "bitcoincash:rwt4ewj3fnqfp4qpx53nw8yklldref0pwtjtxn7edwlnsytwtg9ts9peruqua"
+      },
+      "params": {
+        "resolverPkh": "259fda07082b231c5a92ccc575d32e076186f710",
+        "bettingDeadline": 1795737540,
+        "voidDeadline": 1797120000,
+        "yesCategory": "7f42467051489733027a332044beb9818d3324098cbe9428aa4f4655fd49de98",
+        "noCategory": "9af2c146b4b12677f7ca9353eb2eab5a1cde33644772c9e4deeddd15b4f867c2"
+      }
+    }
+  ]
+}
