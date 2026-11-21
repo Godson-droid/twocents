@@ -82,12 +82,18 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       try {
         const stored = localStorage.getItem(WIF_KEY);
         if (stored) {
-          await loadFromWif(stored, 'mainnet');
-        } else {
-          const instance = await randomWallet('mainnet');
-          localStorage.setItem(WIF_KEY, instance.privateKeyWif);
-          setWallet(instance);
+          try {
+            await loadFromWif(stored, 'mainnet');
+            return;
+          } catch {
+            // A WIF stored by an earlier testnet build cannot load as a
+            // mainnet wallet. Discard it and start fresh on mainnet.
+            localStorage.removeItem(WIF_KEY);
+          }
         }
+        const instance = await randomWallet('mainnet');
+        localStorage.setItem(WIF_KEY, instance.privateKeyWif);
+        setWallet(instance);
       } catch (err) {
         setWalletError(
           err instanceof Error ? err.message : 'Could not initialise the demo wallet',

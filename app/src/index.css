@@ -298,6 +298,15 @@ textarea.wif-input:focus, input.text-input:focus { border-color: var(--line-stro
   animation: shimmer 1.4s infinite;
 }
 @keyframes shimmer { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+@keyframes riseIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes pulseDot { 0%, 100% { box-shadow: 0 0 0 0 rgba(47, 230, 167, 0.45); } 55% { box-shadow: 0 0 0 6px rgba(47, 230, 167, 0); } }
+.grid > .card, .proof-card { animation: riseIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.grid > .card:nth-child(2) { animation-delay: 0.08s; }
+.grid > .card:nth-child(3) { animation-delay: 0.16s; }
+.grid > .card:nth-child(4) { animation-delay: 0.24s; }
+.grid > .card:nth-child(5) { animation-delay: 0.32s; }
+.grid > .card:nth-child(6) { animation-delay: 0.4s; }
+.badge-open::before { animation: pulseDot 2.2s ease-in-out infinite; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes popIn { from { opacity: 0; transform: translateY(8px) scale(0.98); } to { opacity: 1; transform: none; } }
 .empty-state {
