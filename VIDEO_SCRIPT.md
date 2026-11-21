@@ -15,7 +15,7 @@ And this is not a mock up. On the morning of 21 November, a live market on Two C
 
 Three more markets are open right now. Will Bitcoin Cash trade above two hundred dollars on the first of December. Will Ethereum pass three thousand five hundred. And the honest one: will Two Cents itself finish in the top three of this hackathon.
 
-You can try it in your browser. The app carries a built in demo wallet, so you can fund an address and place a real bet on mainnet in under a minute. If you already have a Bitcoin Cash wallet, Two Cents also speaks WizardConnect.
+You can try it in your browser. The app carries a built in browser wallet, so you can fund an address and place a real bet on mainnet in under a minute. If you already have a Bitcoin Cash wallet, Two Cents also speaks WizardConnect.
 
 Under the hood there are two contracts. One holds the pool and the market state, carried in a mutable NFT. The other is a vault that guards each side of the share supply and releases shares only to its own pool. The full lifecycle is covered by eighteen tests that run every transaction against the real Bitcoin Cash virtual machine.
 
@@ -27,7 +27,7 @@ Two Cents. Put your money where your mouth is.
 
 1. Title card: Two Cents wordmark, tagline.
 2. The app home: three live market cards with real odds.
-3. Market detail: the bet slip, a demo wallet being funded.
+3. Market detail: the bet slip, a browser wallet being funded.
 4. Explorer view: the settled market claim transaction (77df3fa6...).
 5. The three live markets again, pool sizes visible.
 6. Contract diagram or the repo page, closing card with demo and repo links.
