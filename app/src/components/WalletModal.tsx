@@ -73,7 +73,7 @@ function DemoWalletTab() {
         <div className="skeleton" style={{ height: 18, width: '70%' }} />
         {walletError && <p className="err-text">{walletError}</p>}
         <p className="muted" style={{ marginTop: 10 }}>
-          Creating your demo wallet…
+          Creating your browser wallet…
         </p>
       </div>
     );
@@ -82,9 +82,9 @@ function DemoWalletTab() {
   return (
     <div>
       <p className="muted" style={{ marginTop: 0 }}>
-        A full wallet that lives in this browser, generated with mainnet-js. Fund it and
-        you can bet, claim and refund on {network} straight away — no extension, no
-        sign-up.
+        A full wallet that lives in this browser, generated with mainnet-js. Created in
+        your browser, and your keys never leave this device. Fund it and you can bet,
+        claim and refund on {network} straight away — no extension, no sign-up.
       </p>
 
       {qr && (
@@ -186,7 +186,7 @@ function DemoWalletTab() {
               try {
                 await createDemoWallet();
                 setConfirmNew(false);
-                push({ kind: 'ok', title: 'New demo wallet created', body: 'The old key was replaced in this browser.' });
+                push({ kind: 'ok', title: 'New browser wallet created', body: 'The old key was replaced in this browser.' });
               } finally {
                 setBusy(false);
               }
@@ -284,7 +284,7 @@ function WizardTab() {
       )}
 
       <p className="faint" style={{ fontSize: 12.5, marginTop: 16 }}>
-        No wallet handy? The demo wallet tab works on its own — it is a real wallet,
+        No wallet handy? The browser wallet tab works on its own — it is a real wallet,
         generated locally in your browser.
       </p>
     </div>
@@ -305,7 +305,7 @@ export function WalletModal({ open, onClose }: { open: boolean; onClose: () => v
         </div>
         <div className="wallet-tabs">
           <button className={`wallet-tab ${tab === 'demo' ? 'active' : ''}`} onClick={() => setTab('demo')}>
-            Demo wallet
+            Browser wallet
           </button>
           <button className={`wallet-tab ${tab === 'wizard' ? 'active' : ''}`} onClick={() => setTab('wizard')}>
             WizardConnect

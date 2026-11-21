@@ -96,7 +96,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         setWallet(instance);
       } catch (err) {
         setWalletError(
-          err instanceof Error ? err.message : 'Could not initialise the demo wallet',
+          err instanceof Error ? err.message : 'Could not initialise the browser wallet',
         );
       }
     })();

@@ -56,7 +56,7 @@ function HowItWorks() {
     {
       n: '01',
       title: 'Fund a wallet',
-      body: 'The built-in demo wallet is generated in your browser with mainnet-js. Send it a little mainnet BCH and you are ready, or pair a real wallet over WizardConnect.',
+      body: 'The browser wallet is generated right in your browser with mainnet-js. Send it a little mainnet BCH and you are ready, or pair your own wallet over WizardConnect.',
     },
     {
       n: '02',
@@ -120,7 +120,7 @@ function Shell() {
                   Browse live markets
                 </a>
                 <button className="btn btn-ghost btn-lg" onClick={() => setWalletOpen(true)}>
-                  Open the demo wallet
+                  Open the browser wallet
                 </button>
               </div>
               <div className="hero-stats">
@@ -168,7 +168,7 @@ function Shell() {
             Two Cents — built for BCH BLAZE 2026. Pools are CashScript covenants on
             Bitcoin Cash; shares are CashTokens.
           </span>
-          <span>Demo wallet keys never leave your browser.</span>
+          <span>Browser wallet keys never leave your device.</span>
         </footer>
       </main>
       <WalletModal open={walletOpen} onClose={() => setWalletOpen(false)} />

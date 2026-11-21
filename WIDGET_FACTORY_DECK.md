@@ -31,7 +31,7 @@ Fees are Bitcoin Cash fees: a full bet costs a fraction of a cent.
 CashScript covenants: MarketPool holds the pool and a mutable state NFT; ShareVault guards each side of the share supply.
 CashTokens: two fungible outcome share categories per market, minted once into the vaults at creation.
 Real mainnet transactions: market creation is an eight transaction chain; bets, close, resolve and claim all run on mainnet today.
-WizardConnect is integrated for external wallets, alongside a built in demo wallet powered by mainnet js.
+WizardConnect is integrated for external wallets, alongside a built in browser wallet powered by mainnet js.
 Four markets deployed. Eight bets placed. One full lifecycle settled and paid out: 40,000 sats claimed in a single transaction.
 
 ## Slide 5, Transparency and Vision

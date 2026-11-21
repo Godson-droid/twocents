@@ -15,7 +15,7 @@ Three markets are live on mainnet right now, each with real money already in the
 2. Will Ethereum trade above $3,500 on 1 December 2026?
 3. Will Two Cents finish in the top 3 of the BCH BLAZE Mainnet Track?
 
-The app carries a built in demo wallet, so anyone can open it, fund the wallet address it shows, and place a real bet on mainnet in under a minute. It also speaks WizardConnect for external BCH wallets. See app/WIZARDCONNECT.md for what that integration does today and where its limits are.
+The app carries a built in browser wallet, so anyone can open it, fund the wallet address it shows, and place a real bet on mainnet in under a minute. It also speaks WizardConnect for external BCH wallets. See app/WIZARDCONNECT.md for what that integration does today and where its limits are.
 
 ## Proof on mainnet
 
@@ -51,7 +51,7 @@ All 18 tests pass against a mock network that validates every transaction with t
 
 ## Dependencies
 
-CashScript 0.14 and the cashscript SDK compile and drive the contracts. The app is React and TypeScript built with Vite. Chain reads and transaction broadcast in the browser run over Electrum through cashscript providers. The demo wallet uses mainnet js. WizardConnect support uses the published Riften Labs packages. Token tooling and address handling use libauth.
+CashScript 0.14 and the cashscript SDK compile and drive the contracts. The app is React and TypeScript built with Vite. Chain reads and transaction broadcast in the browser run over Electrum through cashscript providers. The browser wallet uses mainnet js. WizardConnect support uses the published Riften Labs packages. Token tooling and address handling use libauth.
 
 ## Honest limitations
 

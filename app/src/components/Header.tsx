@@ -27,7 +27,7 @@ export function Header({ onHome, onWallet }: { onHome: () => void; onWallet: () 
             <>
               <span className="mono">{shortValue(displayAddress, 8, 6)}</span>
               <span className="faint" style={{ fontSize: 12 }}>
-                {signer === 'wizard' ? 'WizardConnect' : 'Demo wallet'}
+                {signer === 'wizard' ? 'WizardConnect' : 'Browser wallet'}
               </span>
             </>
           ) : (
